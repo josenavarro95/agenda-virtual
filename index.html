@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#C8A2C8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mi Agenda 🌸">
+  <title>Mi Agenda Virtual 🌸</title>
+
+  <!-- Fuentes de Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Pacifico&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+<style>
+/* ============================================================
+   MI AGENDA VIRTUAL 🌸 — Estilos Completos
+   ============================================================ */
+
+:root {
+  --lilac:       #C8A2C8;
+  --lilac-dark:  #9B59B6;
+  --lilac-light: #E8D5E8;
+  --sky:         #87CEEB;
+  --sky-light:   #D4EFFF;
+  --pink:        #FFB6C1;
+  --pink-light:  #FFE4E8;
+  --white:       #FFFFFF;
+  --cream:       #FDF4FF;
+  --text-dark:   #4A3550;
+  --text-mid:    #7A6080;
+  --text-light:  #B09ABF;
+  --shadow:      rgba(155, 89, 182, 0.18);
+  --shadow-md:   rgba(155, 89, 182, 0.28);
+  --border:      rgba(200, 162, 200, 0.4);
+  --line-color:  rgba(135, 206, 235, 0.5);
+  --radius:      14px;
+  --radius-lg:   22px;
+  --font-main:   'Lato', sans-serif;
+  --font-title:  'Dancing Script', cursive;
+  --font-elegant:'Playfair Display', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-main);
+  background: var(--cream);
+  color: var(--text-dark);
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+.hidden { display: none !important; }
+
+/* ——— LOGIN ——— */
+.screen-full {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.login-bg {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #f3d7f7 0%, #d4e9ff 35%, #fde8ee 65%, #e8d5e8 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; position: relative; overflow: hidden;
+}
+.login-bg::before {
+  content: '🌸 🌺 🌷 💜 ✨ 🌸 🌺 🌷 💜 ✨ 🌸 🌺';
+  position: absolute; top: 20px; left: 0; right: 0;
+  text-align: center; font-size: 22px; opacity: 0.25;
+  letter-spacing: 10px; white-space: nowrap;
+  animation: floatBg 8s ease-in-out infinite;
+}
+.login-bg::after {
+  content: '🌸 ✨ 💜 🌺 🌷 🌸 ✨ 💜 🌺 🌷';
+  position: absolute; bottom: 20px; left: 0; right: 0;
+  text-align: center; font-size: 22px; opacity: 0.25;
+  letter-spacing: 10px; white-space: nowrap;
+  animation: floatBg 8s ease-in-out infinite reverse;
+}
+@keyframes floatBg {
+  0%, 100% { transform: translateX(-15px); }
+  50% { transform: translateX(15px); }
+}
+.login-card {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 44px 36px;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 20px 60px var(--shadow-md), 0 0 0 1px rgba(255,255,255,0.8) inset;
+  border: 1px solid rgba(200,162,200,0.3);
+  position: relative; z-index: 1;
+}
+.login-header { text-align: center; margin-bottom: 32px; }
+.login-icon {
+  font-size: 56px; margin-bottom: 12px; display: block;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.login-title {
+  font-family: var(--font-title);
+  font-size: 2.4rem; font-weight: 700;
+  color: var(--lilac-dark); margin-bottom: 6px;
+  text-shadow: 0 2px 8px var(--shadow);
+}
+.login-subtitle { color: var(--text-mid); font-size: 0.95rem; letter-spacing: 0.5px; }
+.login-form { display: flex; flex-direction: column; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label {
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--lilac-dark); letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.form-group input, .cover-input, .cover-textarea {
+  width: 100%; padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.95rem; font-family: var(--font-main);
+  color: var(--text-dark); background: rgba(255,255,255,0.9);
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+}
+.form-group input:focus, .cover-input:focus, .cover-textarea:focus {
+  border-color: var(--lilac);
+  box-shadow: 0 0 0 4px rgba(200,162,200,0.2);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--lilac-dark), var(--lilac));
+  color: white; border: none; padding: 14px 28px;
+  border-radius: var(--radius); font-size: 1rem; font-weight: 700;
+  font-family: var(--font-main); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(155,89,182,0.35); letter-spacing: 0.5px;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(155,89,182,0.45); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary.btn-full { width: 100%; }
+.btn-secondary {
+  background: transparent; color: var(--lilac-dark);
+  border: 2px solid var(--lilac); padding: 12px 24px;
+  border-radius: var(--radius); font-size: 0.95rem; font-weight: 600;
+  font-family: var(--font-main); cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--lilac-light); }
+.btn-danger {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white; border: none; padding: 12px 24px;
+  border-radius: var(--radius); font-size: 0.95rem; font-weight: 600;
+  font-family: var(--font-main); cursor: pointer; transition: all 0.15s;
+}
+.btn-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(231,76,60,0.4); }
+.error-msg {
+  background: #ffe0e0; color: #c0392b;
+  border: 1px solid #ffb3b3; border-radius: 8px;
+  padding: 10px 14px; font-size: 0.85rem; text-align: center;
+}
+.info-msg { border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; text-align: center; }
+.info-msg.success { background: #e0f5e9; color: #27ae60; border: 1px solid #a9dfbf; }
+.info-msg.error   { background: #ffe0e0; color: #c0392b; border: 1px solid #ffb3b3; }
+.login-footer { text-align: center; margin-top: 24px; color: var(--text-light); font-size: 0.8rem; }
+
+/* ——— APP PRINCIPAL ——— */
+#app-container {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--cream);
+}
+.app-header {
+  height: 64px;
+  background: linear-gradient(90deg, #7b3fa0, var(--lilac-dark), var(--lilac));
+  display: flex; align-items: center;
+  padding: 0 10px; gap: 8px;
+  box-shadow: 0 2px 14px rgba(100,0,150,0.3);
+  position: relative; z-index: 200; flex-shrink: 0;
+}
+.app-header-center {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden; padding: 0 4px;
+}
+.header-date-main {
+  font-family: var(--font-title);
+  font-size: 1.15rem; font-weight: 700; color: white;
+  letter-spacing: 0.5px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.header-date-sub {
+  font-size: 0.72rem; color: rgba(255,255,255,0.82);
+  letter-spacing: 0.3px; white-space: nowrap;
+}
+.nav-btn {
+  background: rgba(255,255,255,0.18); border: none; color: white;
+  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+  transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.32); }
+
+#main-content {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+  transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#app-container.menu-open #main-content { margin-left: 260px; }
+
+/* ——— MENÚ LATERAL ——— */
+.side-menu {
+  position: fixed; top: 64px; left: 0;
+  width: 260px; height: calc(100% - 64px);
+  background: white; z-index: 500;
+  box-shadow: 6px 0 28px rgba(100,0,150,0.15);
+  display: flex; flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  border-right: 1px solid var(--border); overflow: hidden;
+}
+.side-menu.open { transform: translateX(0); }
+.menu-profile {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #f3d7f7 0%, #ddeeff 100%);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.menu-avatar-sm {
+  width: 48px; height: 48px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--lilac); flex-shrink: 0;
+}
+.menu-profile-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.menu-profile-name {
+  font-family: var(--font-title); font-size: 1.05rem;
+  color: var(--lilac-dark); font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.menu-profile-sub { font-size: 0.72rem; color: var(--text-light); letter-spacing: 0.3px; }
+.menu-divider { height: 1px; background: var(--border); margin: 0; flex-shrink: 0; }
+.menu-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+.menu-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 20px; color: var(--text-dark);
+  text-decoration: none; font-size: 0.95rem; font-weight: 500;
+  transition: all 0.18s; border-left: 3px solid transparent; cursor: pointer;
+}
+.menu-item-icon { font-size: 1.2rem; flex-shrink: 0; }
+.menu-item-text { flex: 1; }
+.menu-item:hover { background: var(--lilac-light); color: var(--lilac-dark); border-left-color: var(--lilac); }
+.menu-item.active {
+  background: linear-gradient(90deg, #ede0f7, #ddeeff);
+  color: var(--lilac-dark); border-left-color: var(--lilac-dark); font-weight: 700;
+}
+.menu-footer { padding: 14px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.btn-logout {
+  width: 100%; background: none; border: 2px solid var(--pink);
+  color: #e74c3c; padding: 10px; border-radius: var(--radius);
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; font-family: var(--font-main);
+}
+.btn-logout:hover { background: #fff0f0; }
+.overlay {
+  position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 20, 80, 0.4); z-index: 400;
+  backdrop-filter: blur(3px);
+}
+
+/* ——— PANTALLAS ——— */
+.app-screen { display: none; flex: 1; overflow-y: auto; flex-direction: column; position: relative; }
+.app-screen.active { display: flex; }
+
+/* ——— DIARIO ——— */
+.date-nav {
+  display: flex; align-items: center;
+  background: white; padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0;
+}
+.date-nav-btn {
+  background: var(--lilac-light); border: 1px solid var(--border);
+  color: var(--lilac-dark); width: 36px; height: 36px;
+  border-radius: 50%; font-size: 1.3rem; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; line-height: 1;
+}
+.date-nav-btn:hover { background: var(--lilac); color: white; }
+.date-nav-center { flex: 1; text-align: center; position: relative; cursor: pointer; }
+.date-picker-hidden {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.date-display-label {
+  font-family: var(--font-elegant); font-style: italic;
+  color: var(--lilac-dark); font-size: 1rem; font-weight: 700; pointer-events: none;
+}
+
+/* ——— TOOLBAR ——— */
+.editor-toolbar {
+  background: white; border-bottom: 2px solid var(--border);
+  padding: 5px 8px; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  display: flex; flex-direction: column; gap: 5px;
+}
+.toolbar-row {
+  display: flex; align-items: center; gap: 4px;
+  flex-wrap: wrap; min-height: 32px;
+}
+.toolbar-row-1 {
+  background: linear-gradient(90deg, #fdf4ff, #f4f9ff);
+  border-radius: 10px; padding: 3px 8px; border: 1px solid var(--border);
+}
+.toolbar-row-2 {
+  background: linear-gradient(90deg, #fff4f8, #f4f9ff);
+  border-radius: 10px; padding: 3px 8px; border: 1px solid var(--border);
+}
+.toolbar-label {
+  font-size: 0.68rem; font-weight: 700; color: var(--text-light);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  white-space: nowrap; user-select: none;
+}
+.toolbar-sep { width: 1px; height: 20px; background: var(--border); margin: 0 3px; flex-shrink: 0; }
+.toolbar-select {
+  background: white; border: 1.5px solid var(--border); color: var(--text-dark);
+  padding: 3px 6px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;
+  height: 28px; max-width: 110px; font-family: var(--font-main);
+}
+.toolbar-select:focus { border-color: var(--lilac); outline: none; }
+.toolbar-select-sm {
+  background: white; border: 1.5px solid var(--border); color: var(--text-dark);
+  padding: 3px 3px; border-radius: 8px; font-size: 0.78rem; cursor: pointer;
+  height: 28px; width: 52px; font-family: var(--font-main);
+}
+.toolbar-select-sm:focus { border-color: var(--lilac); outline: none; }
+.toolbar-btn {
+  background: white; border: 1.5px solid var(--border); color: var(--text-dark);
+  padding: 0 8px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;
+  transition: all 0.15s; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 3px; white-space: nowrap; position: relative; font-family: var(--font-main);
+}
+.toolbar-btn:hover  { background: var(--lilac-light); border-color: var(--lilac); color: var(--lilac-dark); }
+.toolbar-btn.active { background: var(--lilac-light); border-color: var(--lilac); color: var(--lilac-dark); }
+.tb-align { padding: 0 6px; min-width: 28px; }
+.tb-insert {
+  padding: 0 8px;
+  background: linear-gradient(135deg, #fdf4ff, #f4f9ff);
+  border-color: var(--lilac); color: var(--lilac-dark);
+  font-weight: 600; font-size: 0.78rem;
+}
+.tb-insert:hover { background: var(--lilac-light); }
+.tb-label-text { font-size: 0.74rem; }
+.toolbar-color-label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+.color-preview-box {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+  background: white; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 2px 8px; height: 28px; justify-content: center;
+  cursor: pointer; transition: border-color 0.15s;
+}
+.color-preview-box:hover { border-color: var(--lilac); }
+#color-preview-text { font-weight: 900; font-size: 0.95rem; color: #333; line-height: 1; }
+#color-indicator { width: 20px; height: 3px; background: #333; border-radius: 2px; }
+.toolbar-color-label input[type="color"] {
+  position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none;
+}
+
+/* ——— CUADERNO ——— */
+.notebook-container {
+  flex: 1; overflow-y: auto; padding: 12px;
+  background: linear-gradient(180deg, #f0e8f5 0%, #e8f4fd 50%, #fde8ee 100%);
+  display: flex; justify-content: center;
+}
+.notebook-paper {
+  background: white; width: 100%; max-width: 720px;
+  min-height: calc(100vh - 200px);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px var(--shadow), 2px 2px 0 #e0e0e0, 4px 4px 0 #ebebeb;
+  position: relative; overflow: visible;
+  border: 1px solid rgba(200,162,200,0.2);
+  background-image: linear-gradient(var(--line-color) 1px, transparent 1px);
+  background-size: 100% 32px; background-position: 0 60px;
+}
+.paper-margin {
+  position: absolute; left: 60px; top: 0; bottom: 0;
+  width: 2px; background: rgba(255,100,100,0.25); z-index: 1;
+}
+.paper-holes {
+  position: absolute; left: 18px; top: 0; bottom: 0; width: 24px;
+  display: flex; flex-direction: column; justify-content: space-around;
+  align-items: center; padding: 40px 0; z-index: 2;
+}
+.hole {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--cream); border: 2px solid rgba(200,162,200,0.4);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+.diary-content {
+  min-height: 100%; padding: 20px 20px 40px 76px;
+  font-size: 15px; line-height: 32px; color: var(--text-dark);
+  font-family: var(--font-main); outline: none;
+  white-space: pre-wrap; word-break: break-word;
+  position: relative; z-index: 0;
+}
+.diary-content:empty::before {
+  content: attr(placeholder); color: var(--text-light);
+  pointer-events: none; font-style: italic;
+}
+
+/* ——— CAPA DE IMÁGENES FLOTANTES ——— */
+.images-layer {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 10; overflow: visible;
+}
+.img-block {
+  position: absolute; pointer-events: all;
+  cursor: grab; user-select: none;
+  -webkit-user-select: none; touch-action: none;
+}
+.img-block:active { cursor: grabbing; }
+.img-block img {
+  display: block; border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+  max-width: 100%; pointer-events: none;
+}
+.img-block.selected img {
+  outline: 3px solid var(--lilac);
+  box-shadow: 0 4px 22px rgba(155,89,182,0.38);
+}
+.img-block-delete {
+  position: absolute; top: -10px; right: -10px;
+  width: 26px; height: 26px; background: #e74c3c; color: white;
+  border: 2px solid white; border-radius: 50%; cursor: pointer;
+  font-size: 13px; font-weight: bold; display: flex;
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s; pointer-events: all; z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18); line-height: 1;
+}
+.img-block.selected .img-block-delete { opacity: 1; }
+.img-block-resize {
+  position: absolute; bottom: -6px; right: -6px;
+  width: 18px; height: 18px; background: var(--lilac);
+  border: 2px solid white; border-radius: 4px; cursor: se-resize;
+  opacity: 0; transition: opacity 0.2s; z-index: 2; pointer-events: all;
+}
+.img-block.selected .img-block-resize { opacity: 1; }
+
+/* Panel de control de imagen */
+.image-controls-panel {
+  position: fixed; background: white;
+  border: 2px solid var(--lilac); border-radius: 12px;
+  padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+  z-index: 300; box-shadow: 0 8px 24px var(--shadow-md);
+  transform: translateX(-50%);
+}
+.image-ctrl-btn {
+  background: var(--lilac-light); border: 1px solid var(--border);
+  color: var(--lilac-dark); width: 30px; height: 30px;
+  border-radius: 6px; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.image-ctrl-btn:hover { background: var(--lilac); color: white; }
+.image-ctrl-btn.danger:hover { background: #e74c3c; color: white; }
+
+/* ——— ESTADO DE GUARDADO ——— */
+.save-status {
+  position: fixed; bottom: 16px; right: 16px;
+  background: rgba(255,255,255,0.95); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 14px; font-size: 0.78rem;
+  color: var(--text-mid); box-shadow: 0 4px 16px var(--shadow);
+  backdrop-filter: blur(10px); z-index: 50; transition: all 0.3s;
+}
+.save-status.saving { color: var(--sky); border-color: var(--sky); }
+.save-status.saved  { color: #27ae60; border-color: #a9dfbf; }
+.save-status.error  { color: #e74c3c; border-color: #ffb3b3; }
+
+/* ——— CALENDARIO ——— */
+.calendar-container { flex: 1; padding: 20px; max-width: 500px; margin: 0 auto; width: 100%; }
+.calendar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; background: white; padding: 16px 20px;
+  border-radius: var(--radius); box-shadow: 0 2px 12px var(--shadow);
+  border: 1px solid var(--border);
+}
+.calendar-header h2 { font-family: var(--font-title); font-size: 1.5rem; color: var(--lilac-dark); }
+.cal-nav-btn {
+  background: var(--lilac-light); border: 1px solid var(--border);
+  color: var(--lilac-dark); width: 36px; height: 36px;
+  border-radius: 50%; font-size: 1.4rem; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.cal-nav-btn:hover { background: var(--lilac); color: white; }
+.calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+.calendar-weekdays span {
+  text-align: center; font-size: 0.75rem; font-weight: 700;
+  color: var(--text-light); text-transform: uppercase; padding: 6px 0;
+}
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day {
+  aspect-ratio: 1; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+  font-weight: 500; color: var(--text-dark); position: relative;
+}
+.cal-day:hover { background: var(--lilac-light); }
+.cal-day.other-month { color: var(--text-light); }
+.cal-day.today {
+  background: linear-gradient(135deg, var(--lilac-dark), var(--lilac));
+  color: white; font-weight: 700; box-shadow: 0 4px 12px var(--shadow-md);
+}
+.cal-day.has-entry::after {
+  content: ''; position: absolute; bottom: 4px; left: 50%;
+  transform: translateX(-50%); width: 4px; height: 4px;
+  border-radius: 50%; background: var(--pink);
+}
+.cal-day.today.has-entry::after { background: white; }
+.calendar-legend {
+  display: flex; gap: 20px; margin-top: 16px; justify-content: center;
+  font-size: 0.8rem; color: var(--text-mid);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-has-entry { background: var(--pink); }
+.dot-today { background: var(--lilac-dark); }
+.dot-quick-note { background: #b57bee; }
+
+/* ——— Indicador nota rápida en día ——— */
+.cal-day.has-quick-note::before {
+  content: ''; position: absolute; top: 3px; right: 3px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #b57bee;
+}
+.cal-day.today.has-quick-note::before { background: rgba(255,255,255,0.9); }
+
+/* ——— PANEL NOTAS RÁPIDAS ——— */
+.quick-note-panel {
+  position: fixed; inset: 0; z-index: 1200;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.quick-note-panel.hidden { display: none; }
+.qnp-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(74,53,80,0.45); backdrop-filter: blur(3px);
+  animation: fadeIn 0.25s ease;
+}
+.qnp-card {
+  position: relative; width: 100%; max-width: 520px;
+  background: white; border-radius: 24px 24px 0 0;
+  padding: 0 20px 32px; box-shadow: 0 -8px 40px rgba(155,89,182,0.25);
+  animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  max-height: 80vh; display: flex; flex-direction: column;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.qnp-handle {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: var(--lilac-light); margin: 12px auto 16px; flex-shrink: 0;
+}
+.qnp-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; flex-shrink: 0;
+}
+.qnp-date-icon { font-size: 1.4rem; }
+.qnp-date-title {
+  flex: 1; font-family: var(--font-elegant); font-size: 1.1rem;
+  color: var(--text-dark); font-weight: 600;
+}
+.qnp-close-btn {
+  background: none; border: none; font-size: 1.1rem;
+  color: var(--text-mid); cursor: pointer; padding: 4px 8px;
+  border-radius: 8px; transition: background 0.2s;
+}
+.qnp-close-btn:hover { background: var(--lilac-light); }
+.qnp-notes-list {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  gap: 8px; margin-bottom: 16px; min-height: 0;
+}
+.qnp-note-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--cream); border-radius: 12px;
+  padding: 10px 14px; border: 1px solid var(--border);
+  animation: fadeIn 0.2s ease;
+}
+.qnp-note-text {
+  flex: 1; font-size: 0.92rem; color: var(--text-dark); line-height: 1.5;
+}
+.qnp-note-delete {
+  background: none; border: none; font-size: 1rem;
+  cursor: pointer; color: var(--text-light); padding: 0 4px;
+  transition: color 0.2s; flex-shrink: 0;
+}
+.qnp-note-delete:hover { color: #e74c3c; }
+.qnp-empty {
+  text-align: center; color: var(--text-light);
+  font-size: 0.9rem; padding: 16px 0; font-style: italic;
+}
+.qnp-add-row {
+  display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0;
+}
+.qnp-input {
+  flex: 1; border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 10px 14px; font-size: 0.9rem; font-family: var(--font-main);
+  color: var(--text-dark); background: var(--cream);
+  outline: none; transition: border-color 0.2s;
+}
+.qnp-input:focus { border-color: var(--lilac); }
+.qnp-add-btn {
+  background: linear-gradient(135deg, var(--lilac-dark), var(--lilac));
+  color: white; border: none; border-radius: 12px;
+  padding: 10px 16px; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
+}
+.qnp-add-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.qnp-diary-btn {
+  width: 100%; background: none;
+  border: 1.5px solid var(--lilac); color: var(--lilac-dark);
+  border-radius: 12px; padding: 10px; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.qnp-diary-btn:hover { background: var(--lilac-light); }
+
+/* ——— PORTADA ——— */
+.cover-container { padding: 20px; display: flex; justify-content: center; align-items: flex-start; }
+.cover-book {
+  width: 100%; max-width: 460px; background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px var(--shadow-md), 4px 4px 0 var(--lilac-light), 8px 8px 0 var(--pink-light);
+  overflow: hidden; border: 2px solid var(--border);
+}
+.cover-header {
+  background: linear-gradient(135deg, var(--lilac-dark), #c87db8, var(--sky));
+  padding: 30px 20px; text-align: center;
+}
+.cover-flowers { font-size: 1.6rem; letter-spacing: 8px; margin-bottom: 10px; }
+.cover-title { font-family: var(--font-title); font-size: 2rem; color: white; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.cover-photo-section { display: flex; justify-content: center; margin: -40px 0 0; padding-bottom: 0; }
+.photo-upload-label {
+  width: 110px; height: 110px; border-radius: 50%;
+  border: 4px solid white; box-shadow: 0 4px 20px var(--shadow-md);
+  cursor: pointer; overflow: hidden; position: relative; display: block;
+  background: var(--cream); z-index: 5;
+}
+.cover-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-overlay {
+  position: absolute; inset: 0; background: rgba(155,89,182,0.6); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; text-align: center;
+  opacity: 0; transition: opacity 0.2s; padding: 8px;
+}
+.photo-upload-label:hover .photo-overlay { opacity: 1; }
+.cover-info { padding: 24px 28px 16px; display: flex; flex-direction: column; gap: 16px; }
+.cover-field { display: flex; flex-direction: column; gap: 6px; }
+.cover-field label { font-size: 0.82rem; font-weight: 700; color: var(--lilac-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+.cover-textarea { resize: vertical; min-height: 80px; }
+.cover-book .btn-primary { margin: 8px 28px 28px; width: calc(100% - 56px); }
+
+/* ——— CONFIGURACIÓN ——— */
+.settings-container {
+  flex: 1; padding: 20px; max-width: 520px; margin: 0 auto;
+  width: 100%; display: flex; flex-direction: column; gap: 16px;
+}
+.settings-title { font-family: var(--font-title); font-size: 1.8rem; color: var(--lilac-dark); margin-bottom: 4px; }
+.settings-card {
+  background: white; border-radius: var(--radius); padding: 24px;
+  box-shadow: 0 2px 12px var(--shadow); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.settings-card h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); }
+.settings-desc { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; }
+.danger-zone { border-color: rgba(231,76,60,0.3); background: #fff8f8; }
+
+/* ——— EMOJI PICKER ——— */
+.emoji-picker {
+  position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%);
+  width: min(340px, 95vw); background: white;
+  border-radius: var(--radius-lg); box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+  border: 2px solid var(--border); z-index: 200; overflow: hidden;
+}
+.emoji-search-bar { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.emoji-search-bar input {
+  width: 100%; border: 1px solid var(--border); border-radius: 20px;
+  padding: 7px 14px; font-size: 0.85rem; outline: none;
+  background: var(--cream); font-family: var(--font-main);
+}
+.emoji-search-bar input:focus { border-color: var(--lilac); }
+.emoji-categories {
+  display: flex; gap: 4px; padding: 8px 12px;
+  border-bottom: 1px solid var(--border); overflow-x: auto;
+}
+.emoji-cat-btn {
+  background: none; border: none; font-size: 1.2rem; cursor: pointer;
+  padding: 5px 8px; border-radius: 8px; transition: background 0.15s; flex-shrink: 0;
+}
+.emoji-cat-btn:hover, .emoji-cat-btn.active { background: var(--lilac-light); }
+.emoji-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr);
+  gap: 2px; padding: 10px; max-height: 200px; overflow-y: auto;
+}
+.emoji-item {
+  font-size: 1.3rem; text-align: center; padding: 6px;
+  border-radius: 8px; cursor: pointer; transition: background 0.1s; line-height: 1;
+}
+.emoji-item:hover { background: var(--lilac-light); }
+
+/* ——— DIÁLOGO AUTO-LOGOUT ——— */
+.dialog-overlay {
+  position: fixed; inset: 0; background: rgba(74,53,80,0.6);
+  backdrop-filter: blur(8px); z-index: 900;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.dialog-box {
+  background: white; border-radius: var(--radius-lg);
+  padding: 40px 32px; text-align: center; max-width: 340px; width: 100%;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2); border: 2px solid var(--border);
+}
+.dialog-icon { font-size: 3.5rem; margin-bottom: 12px; animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+.dialog-title { font-family: var(--font-title); font-size: 1.7rem; color: var(--lilac-dark); margin-bottom: 10px; }
+.dialog-text { color: var(--text-mid); font-size: 0.92rem; line-height: 1.6; margin-bottom: 8px; }
+.countdown-circle {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--lilac-dark), var(--lilac));
+  color: white; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; margin: 12px auto;
+  box-shadow: 0 4px 20px rgba(155,89,182,0.4);
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+@keyframes countdown-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(155,89,182,0.4); }
+  50%       { box-shadow: 0 4px 30px rgba(155,89,182,0.7); }
+}
+.countdown-circle span { font-size: 2rem; font-weight: 900; line-height: 1; }
+.countdown-circle small { font-size: 0.65rem; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; }
+.dialog-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.btn-continue-big { font-size: 1rem; padding: 14px 24px; width: 100%; border-radius: var(--radius); }
+.btn-logout-dialog {
+  background: transparent; border: 2px solid #e0c0e0; color: var(--text-mid);
+  padding: 10px 24px; border-radius: var(--radius); font-size: 0.88rem;
+  font-family: var(--font-main); cursor: pointer; transition: all 0.2s; width: 100%;
+}
+.btn-logout-dialog:hover { border-color: #e74c3c; color: #e74c3c; background: #fff0f0; }
+
+/* ——— LOADING ——— */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #f3d7f7, #d4e9ff);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 800;
+}
+.loading-spinner { font-size: 3rem; animation: spin 1.5s linear infinite; margin-bottom: 20px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.loading-text { font-family: var(--font-title); font-size: 1.4rem; color: var(--lilac-dark); }
+.loading-note {
+  margin-top: 18px; font-size: 0.78rem; color: var(--lilac-dark);
+  text-align: center; padding: 0 30px; opacity: 0;
+  transition: opacity 1s; line-height: 1.5;
+}
+
+/* ——— BIENVENIDA ——— */
+.welcome-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, rgba(155,89,182,0.92) 0%, rgba(200,162,200,0.88) 50%, rgba(135,206,235,0.85) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: welcomeFadeIn 0.5s ease forwards;
+  padding: 30px;
+}
+.welcome-overlay.hiding {
+  animation: welcomeFadeOut 0.6s ease forwards;
+}
+@keyframes welcomeFadeIn {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes welcomeFadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.96); }
+}
+.welcome-card {
+  text-align: center;
+  animation: welcomeCardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes welcomeCardIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.welcome-flowers {
+  font-size: 2.2rem; letter-spacing: 10px;
+  margin-bottom: 18px;
+  animation: floatFlowers 2s ease-in-out infinite;
+  display: block;
+}
+@keyframes floatFlowers {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+.welcome-title {
+  font-family: var(--font-title);
+  font-size: 1.6rem; font-weight: 400;
+  color: rgba(255,255,255,0.88);
+  letter-spacing: 1px; margin-bottom: 6px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+.welcome-name {
+  font-family: var(--font-title);
+  font-size: 3.2rem; font-weight: 700;
+  color: white;
+  text-shadow: 0 4px 24px rgba(100,0,150,0.3);
+  margin-bottom: 14px;
+  letter-spacing: 1px;
+  line-height: 1.1;
+}
+.welcome-line {
+  width: 60px; height: 2px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 2px;
+  margin: 0 auto 14px;
+}
+.welcome-sub {
+  font-size: 0.95rem; font-style: italic;
+  color: rgba(255,255,255,0.82);
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+/* ——— SCROLLBAR ——— */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--lilac-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--lilac); }
+
+/* ——— RESPONSIVE MÓVIL ——— */
+@media (max-width: 480px) {
+  .login-card { padding: 28px 20px; }
+  .login-title { font-size: 1.9rem; }
+  .toolbar-select { max-width: 85px; }
+  .diary-content { padding-left: 68px; font-size: 14px; }
+  .emoji-grid { grid-template-columns: repeat(7, 1fr); }
+  .app-header { height: 56px; }
+  .side-menu { top: 56px; height: calc(100% - 56px); }
+  .overlay { top: 56px; }
+  .header-date-main { font-size: 1rem; }
+  .header-date-sub { font-size: 0.65rem; }
+  .notebook-container { padding: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner">🌸</div>
+  <div class="loading-text">Cargando tu agenda...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen-full hidden">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="login-icon">📖</span>
+        <h1 class="login-title">Mi Agenda 🌸</h1>
+        <p class="login-subtitle">Tu espacio personal y secreto ✨</p>
+      </div>
+      <form id="login-form" class="login-form" autocomplete="off">
+        <div class="form-group">
+          <label>👤 Usuario</label>
+          <input type="text" id="login-username" placeholder="Escribe tu usuario..." autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label>🔒 Contraseña</label>
+          <div style="position:relative;">
+            <input type="password" id="login-password" placeholder="Escribe tu contraseña..." autocomplete="current-password" required style="padding-right:44px;">
+            <button type="button" id="toggle-password" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--text-mid);">👁️</button>
+          </div>
+        </div>
+        <div id="login-error" class="error-msg hidden"></div>
+        <button type="submit" class="btn-primary btn-full" id="login-btn">✨ Entrar a mi agenda</button>
+      </form>
+      <div class="login-footer"><p>💜 Tu espacio personal, siempre aquí para ti 💜</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="app-container" class="hidden">
+
+  <header class="app-header">
+    <button class="nav-btn" id="btn-menu" title="Abrir menú" aria-label="Menú">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <line x1="2" y1="5"  x2="18" y2="5"  stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="2" y1="10" x2="18" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="2" y1="15" x2="18" y2="15" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="app-header-center">
+      <div class="header-date-main" id="header-date-main">🌸 Mi Agenda</div>
+      <div class="header-date-sub"  id="header-date-sub"></div>
+    </div>
+    <button class="nav-btn" id="btn-today" title="Ir a hoy" aria-label="Ir a hoy">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="4" width="14" height="13" rx="2" stroke="white" stroke-width="1.8"/>
+        <line x1="7"  y1="2" x2="7"  y2="6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="13" y1="2" x2="13" y2="6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="3"  y1="9" x2="17" y2="9" stroke="white" stroke-width="1.5"/>
+        <circle cx="10" cy="13" r="2" fill="white"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- MENÚ LATERAL -->
+  <div id="side-menu" class="side-menu">
+    <div class="menu-profile">
+      <img id="menu-avatar" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=Paola" alt="Avatar" class="menu-avatar-sm" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>'">
+      <div class="menu-profile-info">
+        <span id="menu-name" class="menu-profile-name">Mi Agenda 🌸</span>
+        <span class="menu-profile-sub">Diario personal</span>
+      </div>
+    </div>
+    <div class="menu-divider"></div>
+    <nav class="menu-nav">
+      <a href="#" class="menu-item active" data-screen="diary">
+        <span class="menu-item-icon">📖</span><span class="menu-item-text">Mi Diario</span>
+      </a>
+      <a href="#" class="menu-item" data-screen="calendar">
+        <span class="menu-item-icon">📅</span><span class="menu-item-text">Calendario</span>
+      </a>
+      <a href="#" class="menu-item" data-screen="cover">
+        <span class="menu-item-icon">🌷</span><span class="menu-item-text">Mi Portada</span>
+      </a>
+      <a href="#" class="menu-item" data-screen="settings">
+        <span class="menu-item-icon">⚙️</span><span class="menu-item-text">Configuración</span>
+      </a>
+    </nav>
+    <div style="flex:1;"></div>
+    <div class="menu-footer">
+      <button class="btn-logout" id="btn-logout">🚪 Cerrar Sesión</button>
+    </div>
+  </div>
+  <div id="menu-overlay" class="overlay hidden"></div>
+
+  <div id="main-content">
+
+    <!-- PANTALLA: DIARIO -->
+    <div id="screen-diary" class="app-screen active" style="flex-direction:column;">
+      <div class="date-nav">
+        <button class="date-nav-btn" id="prev-day" title="Día anterior">‹</button>
+        <div class="date-nav-center">
+          <span class="date-display-label" id="date-display-label">Hoy 🌸</span>
+          <input type="date" id="diary-date-picker" class="date-picker-hidden">
+        </div>
+        <button class="date-nav-btn" id="next-day" title="Día siguiente">›</button>
+      </div>
+
+      <div class="editor-toolbar">
+        <div class="toolbar-row toolbar-row-1">
+          <span class="toolbar-label">✏️ Fuente</span>
+          <select id="font-family-picker" class="toolbar-select" title="Tipo de letra">
+            <option value="Lato">Lato (Normal)</option>
+            <option value="'Dancing Script'">✒️ Cursiva</option>
+            <option value="'Playfair Display'">🎩 Elegante</option>
+            <option value="'Caveat'">📝 Manuscrita</option>
+            <option value="'Pacifico'">🌊 Pacifico</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Arial">Arial</option>
+          </select>
+          <span class="toolbar-label">📏 Tam</span>
+          <select id="font-size-picker" class="toolbar-select-sm" title="Tamaño">
+            <option value="1">10</option>
+            <option value="2">12</option>
+            <option value="3" selected>14</option>
+            <option value="4">16</option>
+            <option value="5">18</option>
+            <option value="6">24</option>
+            <option value="7">32</option>
+          </select>
+          <div class="toolbar-sep"></div>
+          <label class="toolbar-color-label" title="Color de letra">
+            <span class="toolbar-label">🎨 Color</span>
+            <div class="color-preview-box">
+              <span id="color-preview-text">A</span>
+              <div id="color-indicator"></div>
+            </div>
+            <input type="color" id="text-color-picker" value="#333333">
+          </label>
+        </div>
+        <div class="toolbar-row toolbar-row-2">
+          <span class="toolbar-label">Estilo:</span>
+          <button class="toolbar-btn" id="btn-bold"      title="Negrita"><b>N</b></button>
+          <button class="toolbar-btn" id="btn-italic"    title="Cursiva"><i>C</i></button>
+          <button class="toolbar-btn" id="btn-underline" title="Subrayado"><u>S</u></button>
+          <div class="toolbar-sep"></div>
+          <span class="toolbar-label">Alinear:</span>
+          <button class="toolbar-btn tb-align" data-cmd="justifyLeft" title="Izquierda">
+            <svg width="14" height="14" viewBox="0 0 14 14"><line x1="0" y1="2" x2="14" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="6" x2="9" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+          <button class="toolbar-btn tb-align" data-cmd="justifyCenter" title="Centrado">
+            <svg width="14" height="14" viewBox="0 0 14 14"><line x1="0" y1="2" x2="14" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="2.5" y1="6" x2="11.5" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+          <button class="toolbar-btn tb-align" data-cmd="justifyRight" title="Derecha">
+            <svg width="14" height="14" viewBox="0 0 14 14"><line x1="0" y1="2" x2="14" y2="2" stroke="currentColor" stroke-width="1.5"/><line x1="5" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1.5"/><line x1="0" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+          <div class="toolbar-sep"></div>
+          <span class="toolbar-label">Insertar:</span>
+          <button class="toolbar-btn tb-insert" id="btn-emoji" title="Emojis">
+            😊 <span class="tb-label-text">Emoji</span>
+          </button>
+          <label class="toolbar-btn tb-insert" title="Agregar imagen">
+            🖼️ <span class="tb-label-text">Imagen</span>
+            <input type="file" id="image-upload" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+          </label>
+        </div>
+      </div>
+
+      <div class="notebook-container">
+        <div class="notebook-paper" id="notebook-paper">
+          <div class="paper-margin"></div>
+          <div class="paper-holes">
+            <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+          </div>
+          <div id="diary-editor" class="diary-content" contenteditable="true" spellcheck="true"
+               placeholder="Escribe aquí tus pensamientos... ✨ 💜 🌸"></div>
+          <div id="images-layer" class="images-layer"></div>
+        </div>
+      </div>
+
+      <div class="save-status saved" id="save-status">
+        <span id="save-status-text">✅ Todo guardado</span>
+      </div>
+    </div><!-- /screen-diary -->
+
+    <!-- PANTALLA: CALENDARIO -->
+    <div id="screen-calendar" class="app-screen" style="overflow-y:auto;">
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <button class="cal-nav-btn" id="cal-prev-month">‹</button>
+          <h2 id="cal-month-title">Mayo 2026</h2>
+          <button class="cal-nav-btn" id="cal-next-month">›</button>
+        </div>
+        <div class="calendar-weekdays">
+          <span>Dom</span><span>Lun</span><span>Mar</span>
+          <span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+        <div class="calendar-legend">
+          <div class="legend-item"><div class="dot dot-has-entry"></div> Tiene entrada</div>
+          <div class="legend-item"><div class="dot dot-quick-note"></div> Nota rápida</div>
+          <div class="legend-item"><div class="dot dot-today"></div> Hoy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTALLA: PORTADA -->
+    <div id="screen-cover" class="app-screen" style="overflow-y:auto;">
+      <div class="cover-container">
+        <div class="cover-book">
+          <div class="cover-header">
+            <div class="cover-flowers">🌸 🌺 🌷</div>
+            <h1 class="cover-title">Mi Agenda Personal</h1>
+            <div class="cover-flowers">💜 ✨ 💜</div>
+          </div>
+          <div class="cover-photo-section">
+            <label class="photo-upload-label" id="cover-photo-label" title="Cambiar foto">
+              <img id="cover-photo" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" alt="Tu foto" class="cover-photo">
+              <div class="photo-overlay">📷<br>Cambiar foto</div>
+              <input type="file" id="cover-photo-input" accept="image/png,image/jpeg,image/jpg" style="display:none;">
+            </label>
+          </div>
+          <div class="cover-info">
+            <div class="cover-field">
+              <label>🌸 Mi Nombre</label>
+              <input type="text" id="cover-name" placeholder="¿Cómo te llamas?..." class="cover-input">
+            </div>
+            <div class="cover-field">
+              <label>🎂 Mi Cumpleaños</label>
+              <input type="date" id="cover-birthday" class="cover-input">
+            </div>
+            <div class="cover-field">
+              <label>💭 Mi Frase Favorita</label>
+              <textarea id="cover-phrase" placeholder="Escribe una frase que te inspire... ✨" class="cover-textarea" rows="3"></textarea>
+            </div>
+            <div class="cover-field">
+              <label>💜 Algo sobre mí</label>
+              <input type="text" id="cover-about" placeholder="Ej: Amo los viajes, el café y leer... 🌺" class="cover-input">
+            </div>
+          </div>
+          <button class="btn-primary" id="save-cover-btn" style="margin:8px 28px 28px;width:calc(100% - 56px);">
+            💾 Guardar mi portada
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTALLA: CONFIGURACIÓN -->
+    <div id="screen-settings" class="app-screen" style="overflow-y:auto;">
+      <div class="settings-container">
+        <h2 class="settings-title">⚙️ Configuración</h2>
+        <div class="settings-card">
+          <h3>🔒 Cambiar Contraseña</h3>
+          <div class="form-group">
+            <label>Contraseña actual</label>
+            <input type="password" id="current-password" placeholder="Tu contraseña actual...">
+          </div>
+          <div class="form-group">
+            <label>Nueva contraseña</label>
+            <input type="password" id="new-password" placeholder="Tu nueva contraseña...">
+          </div>
+          <div class="form-group">
+            <label>Confirmar nueva contraseña</label>
+            <input type="password" id="confirm-password" placeholder="Confirma tu nueva contraseña...">
+          </div>
+          <div id="settings-msg" class="info-msg hidden"></div>
+          <button class="btn-primary" id="change-password-btn">🔑 Cambiar Contraseña</button>
+        </div>
+        <div class="settings-card">
+          <h3>⏱️ Sesión Automática</h3>
+          <p class="settings-desc">Tu sesión se cierra automáticamente después de <strong>5 minutos</strong> de inactividad para proteger tu privacidad 🔐</p>
+          <p class="settings-desc">Si estás escribiendo, el temporizador se reinicia automáticamente ✨</p>
+        </div>
+        <div class="settings-card">
+          <h3>📱 Instalar como App</h3>
+          <p class="settings-desc">Puedes instalar Mi Agenda en tu teléfono para acceder más fácilmente 📲</p>
+          <button class="btn-secondary" id="install-app-btn" style="display:none;">📲 Instalar App</button>
+          <p id="install-hint" class="settings-desc" style="font-size:0.82rem;margin-top:4px;">
+            En Android: toca el menú del navegador → <strong>Añadir a pantalla de inicio</strong> 🌸<br>
+            En iPhone/iPad: toca <strong>Compartir</strong> → <strong>Añadir a la pantalla de inicio</strong> 🌸
+          </p>
+        </div>
+        <div class="settings-card danger-zone">
+          <h3>🚪 Cerrar Sesión</h3>
+          <button class="btn-danger" id="settings-logout-btn">🚪 Cerrar Sesión</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-container -->
+
+<!-- PANEL NOTAS RÁPIDAS -->
+<div id="quick-note-panel" class="quick-note-panel hidden">
+  <div class="qnp-backdrop" id="qnp-backdrop"></div>
+  <div class="qnp-card">
+    <div class="qnp-handle"></div>
+    <div class="qnp-header">
+      <span class="qnp-date-icon">📅</span>
+      <div class="qnp-date-title" id="qnp-date-title">16 de mayo</div>
+      <button class="qnp-close-btn" id="qnp-close">✕</button>
+    </div>
+    <div id="qnp-notes-list" class="qnp-notes-list"></div>
+    <div class="qnp-add-row">
+      <input type="text" id="qnp-input" class="qnp-input"
+             placeholder="Ej: Cita médico 11am... 📌" maxlength="120">
+      <button id="qnp-add-btn" class="qnp-add-btn">➕ Agregar</button>
+    </div>
+    <button id="qnp-open-diary" class="qnp-diary-btn">📖 Abrir en mi diario</button>
+  </div>
+</div>
+
+<!-- EMOJI PICKER -->
+<div id="emoji-picker" class="emoji-picker hidden">
+  <div class="emoji-search-bar">
+    <input type="text" id="emoji-search" placeholder="🔍 Buscar emoji...">
+  </div>
+  <div class="emoji-categories">
+    <button class="emoji-cat-btn active" data-cat="smileys"  title="Caritas">😊</button>
+    <button class="emoji-cat-btn" data-cat="hearts"   title="Corazones">❤️</button>
+    <button class="emoji-cat-btn" data-cat="flowers"  title="Flores">🌸</button>
+    <button class="emoji-cat-btn" data-cat="stars"    title="Estrellas">⭐</button>
+    <button class="emoji-cat-btn" data-cat="animals"  title="Animales">🐱</button>
+    <button class="emoji-cat-btn" data-cat="food"     title="Comida">🍰</button>
+    <button class="emoji-cat-btn" data-cat="travel"   title="Viajes">✈️</button>
+    <button class="emoji-cat-btn" data-cat="magic"    title="Magia">✨</button>
+  </div>
+  <div id="emoji-grid" class="emoji-grid"></div>
+</div>
+
+<!-- PANEL DE CONTROL DE IMAGEN -->
+<div id="image-controls-panel" class="image-controls-panel hidden">
+  <span style="font-size:0.75rem;color:var(--text-light);margin-right:4px;">Imagen:</span>
+  <button class="image-ctrl-btn" id="img-smaller" title="Más pequeña">➖</button>
+  <button class="image-ctrl-btn" id="img-larger"  title="Más grande">➕</button>
+  <button class="image-ctrl-btn danger" id="img-delete" title="Eliminar">🗑️</button>
+</div>
+
+<!-- DIÁLOGO AUTO-LOGOUT -->
+<div id="logout-dialog" class="dialog-overlay hidden">
+  <div class="dialog-box">
+    <div class="dialog-icon">⏰</div>
+    <h3 class="dialog-title">¿Sigues aquí? 💜</h3>
+    <p class="dialog-text">Tu agenda lleva un momento sin actividad.<br>La sesión se cerrará en</p>
+    <div class="countdown-circle">
+      <span id="countdown-display">30</span>
+      <small>seg</small>
+    </div>
+    <p class="dialog-text" style="margin-top:12px;font-size:0.85rem;">¿Qué deseas hacer? 🌸</p>
+    <div class="dialog-buttons">
+      <button class="btn-primary btn-continue-big" id="btn-continue-session">✨ Seguir escribiendo</button>
+      <button class="btn-logout-dialog" id="btn-end-session">🚪 Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FIREBASE CONFIG + APP SCRIPT (todo embebido)
+     ============================================================ -->
+<script>
+// ——— FIREBASE CONFIG ———
+const firebaseConfig = {
+  apiKey: "AIzaSyA1HikNI9vFPmhvhdwndpPFRedcQXZaX8Q",
+  authDomain: "agenda-virtual-93f72.firebaseapp.com",
+  projectId: "agenda-virtual-93f72",
+  storageBucket: "agenda-virtual-93f72.firebasestorage.app",
+  messagingSenderId: "828693054271",
+  appId: "1:828693054271:web:cac4283202cffcd52f498a"
+};
+firebase.initializeApp(firebaseConfig);
+const db      = firebase.firestore();
+const auth    = firebase.auth();
+const storage = firebase.storage();
+
+// Persistencia offline (solo http/https)
+if (location.protocol !== 'file:') {
+  db.enablePersistence({ synchronizeTabs: true })
+    .catch(err => console.warn('Persistencia:', err.code));
+}
+
+</script>
+
+<script>
+'use strict';
+
+// ============================================================
+// DATOS DE EMOJIS
+// ============================================================
+const EMOJI_DATA = {
+  smileys: ['😊','😍','🥰','😘','😂','🤣','😅','😆','😁','😀','🥲','😢','😭','🥺','😴','🤔','😌','🥳','🤩','😎','🫶','🙏','👏','💪','🤗','😏','🫠','😇','😈','🥹'],
+  hearts:  ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💖','💗','💓','💞','💕','💌','❣️','💔','💝','♥️','🫀','💟','☮️','✝️','☯️','🫶'],
+  flowers: ['🌸','🌺','🌷','🌹','🌻','🌼','💐','🪷','🌾','🍀','🌿','🌱','🪴','🌳','🌲','🌴','🎋','🎍','🍃','🍂','🍁','🍄','🌵','🎄'],
+  stars:   ['✨','⭐','🌟','💫','🌙','☀️','🌈','☁️','⛅','🌤️','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','🌬️','🌀','🌊','🔥','💧','🌏','🪐','🌌'],
+  animals: ['🐱','🐶','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦋','🐠','🐟','🐬','🦋','🦄','🐝','🦔','🐩'],
+  food:    ['🍰','🎂','🧁','🍩','🍪','🍫','🍬','🍭','🍮','🍯','🍓','🍒','🍎','🍊','🍋','🍑','🍇','🍉','🥝','🍦','🍧','🍨','🧇','🥞','☕','🧋'],
+  travel:  ['✈️','🚀','🌍','🗺️','🏖️','🏝️','🏔️','⛰️','🎡','🎢','🎠','🏰','🗼','🗽','🌉','🌃','🏙️','🎑','🌅','🌄','🌠','🎆','🎇','🎋'],
+  magic:   ['✨','🪄','🔮','🎩','🌟','💫','🌈','🦄','🧚','🧜','🧙','🏆','🎖️','🥇','🎗️','🎀','🎁','🎊','🎉','🎈','🪅','💎','👑','🪩','🫧']
+};
+
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
+let currentUser      = null;
+let currentDate      = new Date();
+let calendarDate     = new Date();
+let saveDebounceTimer  = null;
+let autoSaveInterval   = null;
+let lastActivity     = Date.now();
+let inactivityCheck  = null;
+let countdownTimer   = null;
+let countdownValue   = 10;
+let logoutDialogOpen = false;
+let selectedImage    = null;
+let deferredInstall  = null;
+let savedRange       = null;
+
+const INACTIVITY_TIMEOUT = 300000; // 5 minutos
+const COUNTDOWN_SECONDS  = 30;
+const DEBOUNCE_DELAY     = 2500;
+const AUTOSAVE_INTERVAL  = 60000;
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  setupPWAInstall();
+  setupAllListeners();
+  auth.onAuthStateChanged(handleAuthChange);
+});
+
+function setupPWAInstall() {
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstall = e;
+    const btn  = document.getElementById('install-app-btn');
+    const hint = document.getElementById('install-hint');
+    if (btn) { btn.style.display = 'block'; if (hint) hint.style.display = 'none'; }
+  });
+  const installBtn = document.getElementById('install-app-btn');
+  if (installBtn) {
+    installBtn.addEventListener('click', () => {
+      if (deferredInstall) {
+        deferredInstall.prompt();
+        deferredInstall.userChoice.then(() => { deferredInstall = null; });
+      }
+    });
+  }
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function handleAuthChange(user) {
+  hideLoading();
+  if (user) {
+    currentUser = user;
+    showApp();
+    initApp();
+  } else {
+    currentUser = null;
+    showLoginScreen();
+    stopInactivityTimer();
+  }
+}
+
+async function doLogin(username, password) {
+  const email = usernameToEmail(username);
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      await auth.createUserWithEmailAndPassword(email, password);
+    } else { throw err; }
+  }
+}
+
+async function doLogout() {
+  stopInactivityTimer();
+  stopAutoSave();
+  await auth.signOut();
+}
+
+async function doChangePassword(currentPwd, newPwd) {
+  if (!currentUser) throw new Error('No hay sesión activa');
+  const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPwd);
+  await currentUser.reauthenticateWithCredential(credential);
+  await currentUser.updatePassword(newPwd);
+}
+
+function usernameToEmail(username) {
+  return username.toLowerCase().replace(/[^a-z0-9]/g, '') + '@mi-agenda-virtual.app';
+}
+
+// ============================================================
+// PANTALLAS
+// ============================================================
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  if (el) { el.style.opacity = '0'; setTimeout(() => el.style.display = 'none', 400); }
+}
+function showLoginScreen() {
+  document.getElementById('screen-login').classList.remove('hidden');
+  document.getElementById('app-container').classList.add('hidden');
+}
+function showApp() {
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('app-container').classList.remove('hidden');
+  showWelcomeMessage();
+}
+
+function showWelcomeMessage() {
+  // Crear overlay de bienvenida
+  const overlay = document.createElement('div');
+  overlay.className = 'welcome-overlay';
+  overlay.innerHTML = `
+    <div class="welcome-card">
+      <span class="welcome-flowers">🌸 💜 🌸</span>
+      <div class="welcome-title">Bienvenida a tu agenda virtual</div>
+      <div class="welcome-name">Paola ✨</div>
+      <div class="welcome-line"></div>
+      <div class="welcome-sub">Tu espacio personal y secreto 💜</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Después de 1.5 seg, animar salida y eliminar
+  setTimeout(() => {
+    overlay.classList.add('hiding');
+    overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
+  }, 1500);
+}
+function showScreen(name) {
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById('screen-' + name);
+  if (screen) screen.classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.screen === name);
+  });
+  const mainEl = document.getElementById('header-date-main');
+  const subEl  = document.getElementById('header-date-sub');
+  if (name === 'diary') {
+    updateDateDisplay();
+  } else {
+    const titles = { calendar: '📅 Calendario', cover: '🌷 Mi Portada', settings: '⚙️ Configuración' };
+    if (mainEl) mainEl.textContent = titles[name] || '📖 Mi Agenda';
+    if (subEl)  subEl.textContent  = '';
+  }
+  if (name === 'calendar') renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth());
+  if (name === 'cover')    loadCoverData();
+  closeSideMenu();
+}
+function openSideMenu() {
+  document.getElementById('side-menu').classList.add('open');
+  document.getElementById('menu-overlay').classList.remove('hidden');
+  document.getElementById('app-container').classList.add('menu-open');
+}
+function closeSideMenu() {
+  document.getElementById('side-menu').classList.remove('open');
+  document.getElementById('menu-overlay').classList.add('hidden');
+  document.getElementById('app-container').classList.remove('menu-open');
+}
+
+// ============================================================
+// INIT APP
+// ============================================================
+async function initApp() {
+  loadDiaryEntry(formatDate(currentDate));
+  loadCoverDataForMenu();
+  startInactivityTimer();
+  startAutoSave();
+  updateDateDisplay();
+  renderEmojiGrid('smileys');
+}
+
+// ============================================================
+// DIARIO
+// ============================================================
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function updateDateDisplay() {
+  const today   = formatDate(new Date());
+  const current = formatDate(currentDate);
+  const fullDate = currentDate.toLocaleDateString('es-ES', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+  const fullDateCap = fullDate.charAt(0).toUpperCase() + fullDate.slice(1);
+  const mainEl = document.getElementById('header-date-main');
+  const subEl  = document.getElementById('header-date-sub');
+  if (mainEl) mainEl.textContent = current === today ? '🌸 Hoy en mi diario' : '📖 Mi Diario';
+  if (subEl)  subEl.textContent  = fullDateCap;
+  const labelEl  = document.getElementById('date-display-label');
+  const pickerEl = document.getElementById('diary-date-picker');
+  if (labelEl)  labelEl.textContent = current === today ? '🌸 Hoy — ' + fullDateCap : fullDateCap;
+  if (pickerEl) pickerEl.value = current;
+}
+
+async function loadDiaryEntry(dateStr) {
+  if (!currentUser) return;
+  const editor = document.getElementById('diary-editor');
+  editor.innerHTML = '';
+  const layer = document.getElementById('images-layer');
+  if (layer) layer.innerHTML = '';
+  setSaveStatus('loading', '⏳ Cargando...');
+  try {
+    const docRef = db.collection('users').doc(currentUser.uid).collection('entries').doc(dateStr);
+    const snap   = await docRef.get();
+    if (snap.exists) {
+      editor.innerHTML = snap.data().content || '';
+      restoreImages(snap.data().imagesData || []);
+    }
+    setSaveStatus('saved', '✅ Todo guardado');
+  } catch (err) {
+    console.error('Error cargando:', err);
+    setSaveStatus('error', '⚠️ Error al cargar');
+  }
+}
+
+async function saveDiaryEntry(dateStr, content) {
+  if (!currentUser) return;
+  setSaveStatus('saving', '💾 Guardando...');
+  try {
+    const docRef = db.collection('users').doc(currentUser.uid).collection('entries').doc(dateStr);
+    await docRef.set({
+      content, imagesData: getImagesData(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(), date: dateStr
+    }, { merge: true });
+    setSaveStatus('saved', '✅ Todo guardado');
+  } catch (err) {
+    console.error('Error guardando:', err);
+    setSaveStatus('error', '❌ Error al guardar');
+  }
+}
+
+function setSaveStatus(type, text) {
+  const el = document.getElementById('save-status');
+  const textEl = document.getElementById('save-status-text');
+  if (!el || !textEl) return;
+  el.className = 'save-status ' + type;
+  textEl.textContent = text;
+}
+
+function triggerSave() {
+  const content = document.getElementById('diary-editor').innerHTML;
+  const dateStr = formatDate(currentDate);
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(() => saveDiaryEntry(dateStr, content), DEBOUNCE_DELAY);
+}
+
+function startAutoSave() {
+  stopAutoSave();
+  autoSaveInterval = setInterval(() => {
+    const content = document.getElementById('diary-editor').innerHTML;
+    if (content.trim()) saveDiaryEntry(formatDate(currentDate), content);
+  }, AUTOSAVE_INTERVAL);
+}
+
+function stopAutoSave() {
+  if (autoSaveInterval) { clearInterval(autoSaveInterval); autoSaveInterval = null; }
+  if (saveDebounceTimer) { clearTimeout(saveDebounceTimer); saveDebounceTimer = null; }
+}
+
+// ============================================================
+// INACTIVIDAD
+// ============================================================
+function startInactivityTimer() {
+  stopInactivityTimer();
+  lastActivity = Date.now();
+  inactivityCheck = setInterval(checkInactivity, 1000);
+}
+function stopInactivityTimer() {
+  if (inactivityCheck) { clearInterval(inactivityCheck); inactivityCheck = null; }
+  if (countdownTimer)  { clearInterval(countdownTimer);  countdownTimer  = null; }
+}
+function resetActivity() {
+  // Solo actualizar el timestamp — NO cerrar el diálogo automáticamente.
+  // El diálogo solo se cierra si el usuario pulsa "Seguir escribiendo".
+  lastActivity = Date.now();
+}
+function checkInactivity() {
+  if (logoutDialogOpen) return;
+  if (Date.now() - lastActivity >= INACTIVITY_TIMEOUT) showLogoutDialog();
+}
+function showLogoutDialog() {
+  if (logoutDialogOpen) return;
+  logoutDialogOpen = true;
+  countdownValue = COUNTDOWN_SECONDS;
+  document.getElementById('countdown-display').textContent = countdownValue;
+  document.getElementById('logout-dialog').classList.remove('hidden');
+  const content = document.getElementById('diary-editor').innerHTML;
+  if (content.trim()) saveDiaryEntry(formatDate(currentDate), content);
+  countdownTimer = setInterval(() => {
+    countdownValue--;
+    const el = document.getElementById('countdown-display');
+    if (el) el.textContent = countdownValue;
+    if (countdownValue <= 0) { clearInterval(countdownTimer); countdownTimer = null; doLogout(); }
+  }, 1000);
+}
+function hideLogoutDialog() {
+  logoutDialogOpen = false;
+  document.getElementById('logout-dialog').classList.add('hidden');
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  lastActivity = Date.now();
+}
+
+// ============================================================
+// FORMATO DE TEXTO
+// ============================================================
+function execFormat(cmd, value) {
+  document.getElementById('diary-editor').focus();
+  document.execCommand(cmd, false, value || null);
+  triggerSave();
+}
+function applyFontFamily(font) {
+  document.getElementById('diary-editor').focus();
+  document.execCommand('fontName', false, font);
+  triggerSave();
+}
+function applyFontSize(size) {
+  document.getElementById('diary-editor').focus();
+  document.execCommand('fontSize', false, size);
+  triggerSave();
+}
+function applyTextColor(color) {
+  const editor = document.getElementById('diary-editor');
+  editor.focus();
+  if (savedRange) {
+    try {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+      savedRange = null;
+    } catch(e) {}
+  }
+  document.execCommand('foreColor', false, color);
+  const indicator = document.getElementById('color-indicator');
+  const preview   = document.getElementById('color-preview-text');
+  if (indicator) indicator.style.background = color;
+  if (preview)   preview.style.color = color;
+  triggerSave();
+}
+
+// ============================================================
+// CURSOR
+// ============================================================
+function saveCursorPosition() {
+  const editor = document.getElementById('diary-editor');
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) {
+    const range = sel.getRangeAt(0);
+    if (editor.contains(range.commonAncestorContainer) || editor === range.commonAncestorContainer) {
+      savedRange = range.cloneRange();
+    }
+  }
+}
+function placeCursorAtEnd(editor) {
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+// ============================================================
+// EMOJI PICKER
+// ============================================================
+function renderEmojiGrid(category) {
+  const grid = document.getElementById('emoji-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  (EMOJI_DATA[category] || []).forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-item';
+    btn.textContent = emoji;
+    btn.type = 'button';
+    btn.addEventListener('mousedown', e => { e.preventDefault(); insertEmoji(emoji); });
+    btn.addEventListener('touchend', e => { e.preventDefault(); insertEmoji(emoji); });
+    grid.appendChild(btn);
+  });
+}
+
+function insertEmoji(emoji) {
+  document.getElementById('emoji-picker').classList.add('hidden');
+  const editor = document.getElementById('diary-editor');
+  if (document.activeElement === editor) {
+    document.execCommand('insertText', false, emoji);
+  } else {
+    editor.focus();
+    if (savedRange) {
+      try {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+        savedRange = null;
+      } catch(e) { placeCursorAtEnd(editor); }
+    }
+    document.execCommand('insertText', false, emoji);
+  }
+  triggerSave();
+  resetActivity();
+}
+
+function filterEmojis(query) {
+  const allEmojis = Object.values(EMOJI_DATA).flat();
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = '';
+  allEmojis.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-item';
+    btn.textContent = emoji;
+    btn.type = 'button';
+    btn.addEventListener('mousedown', e => { e.preventDefault(); insertEmoji(emoji); });
+    btn.addEventListener('touchend', e => { e.preventDefault(); insertEmoji(emoji); });
+    grid.appendChild(btn);
+  });
+}
+
+// ============================================================
+// IMÁGENES FLOTANTES
+// ============================================================
+async function insertImageInEditor(file) {
+  if (!file) return;
+  if (!file.type.match('image/(png|jpeg|jpg)')) { alert('Solo se permiten imágenes PNG o JPG 🖼️'); return; }
+  setSaveStatus('saving', '🖼️ Procesando imagen...');
+  try {
+    const compressed = await compressImage(file, 1200, 0.82);
+    const layer = document.getElementById('images-layer');
+    const lw = layer ? layer.offsetWidth  : 300;
+    const lh = layer ? layer.offsetHeight : 400;
+    const left = Math.max(60, (lw / 2) - 100 + (Math.random() * 40 - 20));
+    const top  = Math.max(20, (lh / 4)       + (Math.random() * 40 - 20));
+    const imgW = Math.min(220, lw - 80);
+    addImageToLayer(compressed, left, top, imgW);
+    setSaveStatus('saved', '✅ Imagen insertada — arrástrala donde quieras 🖼️');
+    triggerSave();
+  } catch (err) {
+    console.error('Error insertando imagen:', err);
+    setSaveStatus('error', '❌ Error al insertar imagen');
+    alert('Error al procesar la imagen. Intenta con una imagen más pequeña.');
+  }
+}
+
+function addImageToLayer(src, left, top, width) {
+  const layer = document.getElementById('images-layer');
+  if (!layer) return null;
+
+  const block = document.createElement('div');
+  block.className = 'img-block';
+  block.style.left = (left  || 60) + 'px';
+  block.style.top  = (top   || 20) + 'px';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.width = (width || 200) + 'px';
+  img.setAttribute('data-width', (width || 200));
+  img.draggable = false;
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'img-block-delete';
+  delBtn.title = 'Eliminar imagen';
+  delBtn.textContent = '✕';
+  delBtn.addEventListener('mousedown', e => e.stopPropagation());
+  delBtn.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+  delBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (confirm('¿Eliminar esta imagen? 🗑️')) { block.remove(); triggerSave(); }
+  });
+
+  const resizeHandle = document.createElement('div');
+  resizeHandle.className = 'img-block-resize';
+  resizeHandle.title = 'Redimensionar';
+  setupResizeHandle(resizeHandle, img);
+
+  block.appendChild(img);
+  block.appendChild(delBtn);
+  block.appendChild(resizeHandle);
+  layer.appendChild(block);
+
+  block.addEventListener('mousedown', e => {
+    if (e.target === delBtn || e.target === resizeHandle) return;
+    selectImgBlock(block);
+  });
+  block.addEventListener('touchstart', e => {
+    if (e.target === delBtn || e.target === resizeHandle) return;
+    selectImgBlock(block);
+  }, { passive: true });
+
+  setupBlockDrag(block);
+  setupPinchResize(block, img);
+  return block;
+}
+
+function selectImgBlock(block) {
+  document.querySelectorAll('.img-block.selected').forEach(b => b.classList.remove('selected'));
+  block.classList.add('selected');
+  selectedImage = block.querySelector('img');
+}
+
+// ============================================================
+// DRAG ACUMULATIVO
+// ============================================================
+function setupBlockDrag(block) {
+  let dragging = false;
+  let startMouseX, startMouseY, startLeft, startTop;
+
+  block.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    if (e.target.classList.contains('img-block-delete') ||
+        e.target.classList.contains('img-block-resize')) return;
+    dragging    = true;
+    startMouseX = e.clientX;
+    startMouseY = e.clientY;
+    startLeft   = parseInt(block.style.left) || 0;
+    startTop    = parseInt(block.style.top)  || 0;
+    block.style.cursor = 'grabbing';
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const layer   = document.getElementById('images-layer');
+    const dx      = e.clientX - startMouseX;
+    const dy      = e.clientY - startMouseY;
+    const newLeft = startLeft + dx;
+    const newTop  = startTop  + dy;
+    const maxLeft = layer ? layer.offsetWidth  - block.offsetWidth  : 9999;
+    const maxTop  = layer ? layer.offsetHeight - block.offsetHeight : 9999;
+    block.style.left = Math.max(0, Math.min(maxLeft, newLeft)) + 'px';
+    block.style.top  = Math.max(0, Math.min(maxTop,  newTop))  + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; block.style.cursor = 'grab'; triggerSave(); }
+  });
+
+  // Touch drag
+  block.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    dragging    = true;
+    startMouseX = t.clientX;
+    startMouseY = t.clientY;
+    startLeft   = parseInt(block.style.left) || 0;
+    startTop    = parseInt(block.style.top)  || 0;
+  }, { passive: true });
+
+  block.addEventListener('touchmove', e => {
+    if (!dragging || e.touches.length !== 1) return;
+    const t       = e.touches[0];
+    const layer   = document.getElementById('images-layer');
+    const dx      = t.clientX - startMouseX;
+    const dy      = t.clientY - startMouseY;
+    const maxLeft = layer ? layer.offsetWidth  - block.offsetWidth  : 9999;
+    const maxTop  = layer ? layer.offsetHeight - block.offsetHeight : 9999;
+    block.style.left = Math.max(0, Math.min(maxLeft, startLeft + dx)) + 'px';
+    block.style.top  = Math.max(0, Math.min(maxTop,  startTop  + dy)) + 'px';
+    e.preventDefault();
+  }, { passive: false });
+
+  block.addEventListener('touchend', () => {
+    if (dragging) { dragging = false; triggerSave(); }
+  });
+}
+
+function setupResizeHandle(handle, img) {
+  let resizing = false;
+  let startX, startWidth;
+
+  // — Mouse (escritorio) —
+  handle.addEventListener('mousedown', e => {
+    e.stopPropagation(); e.preventDefault();
+    resizing = true; startX = e.clientX;
+    startWidth = parseInt(img.getAttribute('data-width')) || img.offsetWidth || 200;
+  });
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    const newW = Math.max(60, Math.min(700, startWidth + (e.clientX - startX)));
+    img.style.width = newW + 'px';
+    img.setAttribute('data-width', newW);
+  });
+  document.addEventListener('mouseup', () => {
+    if (resizing) { resizing = false; triggerSave(); }
+  });
+
+  // — Touch (móvil) — arrastra el handle con un dedo —
+  handle.addEventListener('touchstart', e => {
+    e.stopPropagation(); e.preventDefault();
+    resizing = true;
+    startX = e.touches[0].clientX;
+    startWidth = parseInt(img.getAttribute('data-width')) || img.offsetWidth || 200;
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (!resizing) return;
+    const newW = Math.max(60, Math.min(700, startWidth + (e.touches[0].clientX - startX)));
+    img.style.width = newW + 'px';
+    img.setAttribute('data-width', newW);
+  }, { passive: false });
+  document.addEventListener('touchend', () => {
+    if (resizing) { resizing = false; triggerSave(); }
+  });
+}
+
+function getImagesData() {
+  const layer = document.getElementById('images-layer');
+  if (!layer) return [];
+  return Array.from(layer.querySelectorAll('.img-block')).map(block => {
+    const img = block.querySelector('img');
+    return {
+      src:   img.src,
+      left:  parseInt(block.style.left) || 0,
+      top:   parseInt(block.style.top)  || 0,
+      width: parseInt(img.getAttribute('data-width')) || 200
+    };
+  });
+}
+
+function restoreImages(imagesData) {
+  const layer = document.getElementById('images-layer');
+  if (!layer) return;
+  layer.innerHTML = '';
+  if (!imagesData || !imagesData.length) return;
+  imagesData.forEach(d => addImageToLayer(d.src, d.left, d.top, d.width));
+}
+
+function resizeSelectedImage(delta) {
+  if (!selectedImage) return;
+  let current = parseInt(selectedImage.getAttribute('data-width') || selectedImage.offsetWidth) + delta;
+  current = Math.max(60, Math.min(700, current));
+  selectedImage.style.width = current + 'px';
+  selectedImage.setAttribute('data-width', current);
+  triggerSave();
+}
+
+function deleteSelectedImage() {
+  if (!selectedImage) return;
+  const block = selectedImage.closest ? selectedImage.closest('.img-block') : selectedImage.parentNode;
+  if (block && confirm('¿Eliminar esta imagen? 🗑️')) {
+    block.remove();
+    selectedImage = null;
+    triggerSave();
+  }
+}
+
+function alignSelectedImage(align) { /* no-op en modo capa flotante */ }
+
+function compressImage(file, maxWidth, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function setupPinchResize(block, img) {
+  // Los eventos van en el BLOQUE (no en img que tiene pointer-events:none)
+  let initialDist = null, initialWidth = null;
+  block.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      initialDist  = getPinchDist(e.touches);
+      initialWidth = parseInt(img.getAttribute('data-width') || img.offsetWidth);
+      e.stopPropagation();
+    }
+  }, { passive: true });
+  block.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && initialDist) {
+      const scale = getPinchDist(e.touches) / initialDist;
+      let newW = Math.round(initialWidth * scale);
+      newW = Math.max(50, Math.min(900, newW));
+      img.style.width = newW + 'px';
+      img.setAttribute('data-width', newW);
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, { passive: false });
+  block.addEventListener('touchend', e => {
+    if (e.touches.length < 2 && initialDist !== null) { initialDist = null; triggerSave(); }
+  });
+}
+
+function getPinchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+// ============================================================
+// CALENDARIO
+// ============================================================
+let currentQNPDate = null;
+
+function renderCalendar(year, month) {
+  calendarDate = new Date(year, month, 1);
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-month-title').textContent = months[month] + ' ' + year;
+  const grid = document.getElementById('calendar-grid');
+  grid.innerHTML = '';
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+  const today = formatDate(new Date());
+
+  Promise.all([
+    loadMonthEntries(year, month),
+    loadMonthQuickNotes(year, month)
+  ]).then(([entriesDates, quickNoteDates]) => {
+    grid.innerHTML = '';
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const day = document.createElement('div');
+      day.className = 'cal-day other-month';
+      day.textContent = daysInPrevMonth - i;
+      grid.appendChild(day);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const day = document.createElement('div');
+      day.className = 'cal-day';
+      day.textContent = d;
+      day.setAttribute('data-date', dateStr);
+      if (dateStr === today) day.classList.add('today');
+      if (entriesDates.includes(dateStr))   day.classList.add('has-entry');
+      if (quickNoteDates.includes(dateStr)) day.classList.add('has-quick-note');
+      day.addEventListener('click', () => openQuickNotePanel(dateStr));
+      grid.appendChild(day);
+    }
+    const total = firstDay + daysInMonth;
+    const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for (let d = 1; d <= remaining; d++) {
+      const day = document.createElement('div');
+      day.className = 'cal-day other-month';
+      day.textContent = d;
+      grid.appendChild(day);
+    }
+  });
+}
+
+async function loadMonthEntries(year, month) {
+  if (!currentUser) return [];
+  try {
+    const startDate = `${year}-${String(month+1).padStart(2,'0')}-01`;
+    const endDate   = `${year}-${String(month+1).padStart(2,'0')}-31`;
+    const snap = await db.collection('users').doc(currentUser.uid)
+      .collection('entries').where('date', '>=', startDate).where('date', '<=', endDate).get();
+    return snap.docs.map(d => d.id);
+  } catch (err) { return []; }
+}
+
+async function loadMonthQuickNotes(year, month) {
+  if (!currentUser) return [];
+  try {
+    const startDate = `${year}-${String(month+1).padStart(2,'0')}-01`;
+    const endDate   = `${year}-${String(month+1).padStart(2,'0')}-31`;
+    const snap = await db.collection('users').doc(currentUser.uid)
+      .collection('quick-notes')
+      .where(firebase.firestore.FieldPath.documentId(), '>=', startDate)
+      .where(firebase.firestore.FieldPath.documentId(), '<=', endDate)
+      .get();
+    return snap.docs.filter(d => (d.data().notes || []).length > 0).map(d => d.id);
+  } catch (err) { return []; }
+}
+
+async function openQuickNotePanel(dateStr) {
+  currentQNPDate = dateStr;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dateObj = new Date(y, m - 1, d);
+  const display = dateObj.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('qnp-date-title').textContent = display.charAt(0).toUpperCase() + display.slice(1);
+  document.getElementById('quick-note-panel').classList.remove('hidden');
+  document.getElementById('qnp-input').value = '';
+  await renderQuickNotes(dateStr);
+  setTimeout(() => document.getElementById('qnp-input').focus(), 350);
+}
+
+function closeQuickNotePanel() {
+  document.getElementById('quick-note-panel').classList.add('hidden');
+  currentQNPDate = null;
+}
+
+async function renderQuickNotes(dateStr) {
+  const list = document.getElementById('qnp-notes-list');
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid)
+      .collection('quick-notes').doc(dateStr).get();
+    const notes = snap.exists ? (snap.data().notes || []) : [];
+    if (notes.length === 0) {
+      list.innerHTML = '<div class="qnp-empty">Sin notas aún 🌸<br>¡Agrega una arriba!</div>';
+      return;
+    }
+    list.innerHTML = '';
+    notes.forEach((note, index) => {
+      const item = document.createElement('div');
+      item.className = 'qnp-note-item';
+      item.innerHTML = `
+        <span class="qnp-note-text">${note}</span>
+        <button class="qnp-note-delete" title="Eliminar">🗑️</button>
+      `;
+      item.querySelector('.qnp-note-delete')
+        .addEventListener('click', () => deleteQuickNote(dateStr, index));
+      list.appendChild(item);
+    });
+  } catch (err) {
+    list.innerHTML = '<div class="qnp-empty">Error cargando notas 😕</div>';
+  }
+}
+
+async function addQuickNote() {
+  const input = document.getElementById('qnp-input');
+  const note = input.value.trim();
+  if (!note || !currentQNPDate || !currentUser) return;
+  const btn = document.getElementById('qnp-add-btn');
+  btn.disabled = true;
+  try {
+    const docRef = db.collection('users').doc(currentUser.uid)
+      .collection('quick-notes').doc(currentQNPDate);
+    const snap = await docRef.get();
+    const notes = snap.exists ? (snap.data().notes || []) : [];
+    notes.push(note);
+    await docRef.set({ notes, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    input.value = '';
+    await renderQuickNotes(currentQNPDate);
+    const dayEl = document.querySelector(`.cal-day[data-date="${currentQNPDate}"]`);
+    if (dayEl) dayEl.classList.add('has-quick-note');
+  } catch(err) { console.error('Error guardando nota:', err); }
+  finally { btn.disabled = false; input.focus(); }
+}
+
+async function deleteQuickNote(dateStr, index) {
+  try {
+    const docRef = db.collection('users').doc(currentUser.uid)
+      .collection('quick-notes').doc(dateStr);
+    const snap = await docRef.get();
+    if (!snap.exists) return;
+    const notes = snap.data().notes || [];
+    notes.splice(index, 1);
+    await docRef.set({ notes, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await renderQuickNotes(dateStr);
+    if (notes.length === 0) {
+      const dayEl = document.querySelector(`.cal-day[data-date="${dateStr}"]`);
+      if (dayEl) dayEl.classList.remove('has-quick-note');
+    }
+  } catch(err) { console.error('Error eliminando nota:', err); }
+}
+
+// ============================================================
+// PORTADA
+// ============================================================
+async function loadCoverData() {
+  if (!currentUser) return;
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid).collection('profile').doc('cover').get();
+    if (snap.exists) {
+      const data = snap.data();
+      if (data.name)     document.getElementById('cover-name').value    = data.name;
+      if (data.birthday) document.getElementById('cover-birthday').value = data.birthday;
+      if (data.phrase)   document.getElementById('cover-phrase').value   = data.phrase;
+      if (data.about)    document.getElementById('cover-about').value    = data.about;
+      if (data.photoURL) {
+        document.getElementById('cover-photo').src = data.photoURL;
+        document.getElementById('menu-avatar').src = data.photoURL;
+      }
+      if (data.name) document.getElementById('menu-name').textContent = data.name + ' 🌸';
+    }
+  } catch (err) { console.error('Error cargando portada:', err); }
+}
+
+async function loadCoverDataForMenu() {
+  if (!currentUser) return;
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid).collection('profile').doc('cover').get();
+    if (snap.exists) {
+      const data = snap.data();
+      if (data.photoURL) document.getElementById('menu-avatar').src = data.photoURL;
+      if (data.name)     document.getElementById('menu-name').textContent = data.name + ' 🌸';
+    }
+  } catch (err) {}
+}
+
+async function saveCoverData() {
+  if (!currentUser) return;
+  const name     = document.getElementById('cover-name').value.trim();
+  const birthday = document.getElementById('cover-birthday').value;
+  const phrase   = document.getElementById('cover-phrase').value.trim();
+  const about    = document.getElementById('cover-about').value.trim();
+  try {
+    await db.collection('users').doc(currentUser.uid).collection('profile').doc('cover').set(
+      { name, birthday, phrase, about, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+    if (name) document.getElementById('menu-name').textContent = name + ' 🌸';
+    alert('✅ ¡Portada guardada! 🌸💜');
+  } catch (err) { alert('❌ Error guardando la portada: ' + err.message); }
+}
+
+async function handleCoverPhotoUpload(file) {
+  if (!file || !currentUser) return;
+  try {
+    const compressed = await compressImage(file, 400, 0.85);
+    await db.collection('users').doc(currentUser.uid).collection('profile').doc('cover').set(
+      { photoURL: compressed, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+    document.getElementById('cover-photo').src = compressed;
+    document.getElementById('menu-avatar').src = compressed;
+    alert('✅ ¡Foto actualizada! 📷🌸');
+  } catch (err) { alert('❌ Error actualizando la foto: ' + err.message); }
+}
+
+// ============================================================
+// CAMBIAR CONTRASEÑA
+// ============================================================
+async function handleChangePassword() {
+  const current = document.getElementById('current-password').value;
+  const newPwd  = document.getElementById('new-password').value;
+  const confirm = document.getElementById('confirm-password').value;
+  const msgEl   = document.getElementById('settings-msg');
+  msgEl.className = 'info-msg';
+  msgEl.classList.remove('hidden');
+  if (!current || !newPwd || !confirm) { msgEl.textContent = '⚠️ Completa todos los campos'; msgEl.classList.add('error'); return; }
+  if (newPwd !== confirm) { msgEl.textContent = '⚠️ Las contraseñas no coinciden'; msgEl.classList.add('error'); return; }
+  if (newPwd.length < 6)  { msgEl.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres'; msgEl.classList.add('error'); return; }
+  try {
+    await doChangePassword(current, newPwd);
+    msgEl.textContent = '✅ ¡Contraseña cambiada exitosamente! 🔑';
+    msgEl.classList.add('success');
+    document.getElementById('current-password').value = '';
+    document.getElementById('new-password').value     = '';
+    document.getElementById('confirm-password').value = '';
+  } catch (err) {
+    let msg = '❌ Error: ';
+    if (err.code === 'auth/wrong-password') msg += 'Contraseña actual incorrecta';
+    else if (err.code === 'auth/weak-password') msg += 'La nueva contraseña es muy débil';
+    else msg += err.message;
+    msgEl.textContent = msg;
+    msgEl.classList.add('error');
+  }
+}
+
+// ============================================================
+// EVENTOS
+// ============================================================
+function setupAllListeners() {
+
+  // Login
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn      = document.getElementById('login-btn');
+    const errEl    = document.getElementById('login-error');
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!username || !password) return;
+    btn.textContent = '⏳ Entrando...';
+    btn.disabled = true;
+    errEl.classList.add('hidden');
+    try {
+      await doLogin(username, password);
+    } catch (err) {
+      let msg = '❌ ';
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg += 'Usuario o contraseña incorrectos 🔒';
+      else if (err.code === 'auth/too-many-requests') msg += 'Demasiados intentos. Intenta más tarde ⏳';
+      else if (err.code === 'auth/network-request-failed') msg += 'Sin conexión a internet 📡';
+      else msg += err.message;
+      errEl.textContent = msg;
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.textContent = '✨ Entrar a mi agenda';
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('toggle-password').addEventListener('click', () => {
+    const input = document.getElementById('login-password');
+    const btn   = document.getElementById('toggle-password');
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁️'; }
+  });
+
+  // Navegación
+  document.getElementById('btn-menu').addEventListener('click', () => {
+    document.getElementById('side-menu').classList.contains('open') ? closeSideMenu() : openSideMenu();
+  });
+  document.getElementById('menu-overlay').addEventListener('click', closeSideMenu);
+  document.getElementById('btn-today').addEventListener('click', () => {
+    currentDate = new Date();
+    updateDateDisplay();
+    loadDiaryEntry(formatDate(currentDate));
+    showScreen('diary');
+  });
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', e => { e.preventDefault(); showScreen(item.dataset.screen); });
+  });
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    if (confirm('¿Cerrar sesión? 🚪')) doLogout();
+  });
+  document.getElementById('settings-logout-btn').addEventListener('click', () => {
+    if (confirm('¿Cerrar sesión? 🚪')) doLogout();
+  });
+
+  // Fecha
+  document.getElementById('prev-day').addEventListener('click', () => {
+    currentDate.setDate(currentDate.getDate() - 1);
+    updateDateDisplay(); loadDiaryEntry(formatDate(currentDate)); resetActivity();
+  });
+  document.getElementById('next-day').addEventListener('click', () => {
+    currentDate.setDate(currentDate.getDate() + 1);
+    updateDateDisplay(); loadDiaryEntry(formatDate(currentDate)); resetActivity();
+  });
+  document.getElementById('date-display-label').addEventListener('click', () => {
+    const picker = document.getElementById('diary-date-picker');
+    picker.showPicker ? picker.showPicker() : picker.click();
+  });
+  document.getElementById('diary-date-picker').addEventListener('change', e => {
+    const [y, m, d] = e.target.value.split('-').map(Number);
+    currentDate = new Date(y, m - 1, d);
+    updateDateDisplay(); loadDiaryEntry(e.target.value); resetActivity();
+  });
+
+  // Editor
+  const editor = document.getElementById('diary-editor');
+  editor.addEventListener('input',     () => { resetActivity(); triggerSave(); });
+  editor.addEventListener('keydown',   e  => {
+    resetActivity();
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'b') { e.preventDefault(); execFormat('bold'); }
+      if (e.key === 'i') { e.preventDefault(); execFormat('italic'); }
+      if (e.key === 'u') { e.preventDefault(); execFormat('underline'); }
+      if (e.key === 's') { e.preventDefault(); saveDiaryEntry(formatDate(currentDate), editor.innerHTML); }
+    }
+  });
+  editor.addEventListener('blur',      () => saveCursorPosition());
+  editor.addEventListener('click',     resetActivity);
+  editor.addEventListener('touchstart',resetActivity, { passive: true });
+  editor.addEventListener('scroll',    resetActivity, { passive: true });
+  editor.addEventListener('dragover',  e => e.preventDefault());
+  editor.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length) { e.preventDefault(); insertImageInEditor(e.dataTransfer.files[0]); }
+  });
+
+  // Deseleccionar imagen al hacer click fuera
+  document.addEventListener('click', e => {
+    const inBlock = e.target.closest && e.target.closest('.img-block');
+    const inPanel = document.getElementById('image-controls-panel').contains(e.target);
+    if (!inBlock && !inPanel) {
+      document.querySelectorAll('.img-block.selected').forEach(b => b.classList.remove('selected'));
+      document.getElementById('image-controls-panel').classList.add('hidden');
+      selectedImage = null;
+    }
+    resetActivity();
+  });
+
+  // Toolbar
+  document.getElementById('btn-bold').addEventListener('click',      () => { execFormat('bold');      resetActivity(); });
+  document.getElementById('btn-italic').addEventListener('click',    () => { execFormat('italic');    resetActivity(); });
+  document.getElementById('btn-underline').addEventListener('click', () => { execFormat('underline'); resetActivity(); });
+  document.querySelectorAll('[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => { execFormat(btn.dataset.cmd); resetActivity(); });
+  });
+  document.getElementById('font-family-picker').addEventListener('change', e => { applyFontFamily(e.target.value); resetActivity(); });
+  document.getElementById('font-size-picker').addEventListener('change',   e => { applyFontSize(e.target.value);   resetActivity(); });
+
+  const colorBox = document.querySelector('.color-preview-box');
+  if (colorBox) {
+    colorBox.addEventListener('mousedown', e => {
+      e.preventDefault(); saveCursorPosition();
+      document.getElementById('text-color-picker').click();
+    });
+    colorBox.addEventListener('touchend', e => {
+      e.preventDefault(); saveCursorPosition();
+      document.getElementById('text-color-picker').click();
+    });
+  }
+  document.querySelector('.toolbar-color-label').addEventListener('mousedown', () => saveCursorPosition());
+  document.getElementById('text-color-picker').addEventListener('input',  e => { applyTextColor(e.target.value); resetActivity(); });
+  document.getElementById('text-color-picker').addEventListener('change', e => { applyTextColor(e.target.value); });
+
+  const imageLabel = document.querySelector('label.tb-insert');
+  if (imageLabel) imageLabel.addEventListener('mousedown', () => saveCursorPosition());
+
+  document.getElementById('image-upload').addEventListener('change', e => {
+    if (e.target.files[0]) { insertImageInEditor(e.target.files[0]); e.target.value = ''; resetActivity(); }
+  });
+
+  // Controles de imagen
+  document.getElementById('img-smaller').addEventListener('click', () => { resizeSelectedImage(-50); resetActivity(); });
+  document.getElementById('img-larger').addEventListener('click',  () => { resizeSelectedImage(+50); resetActivity(); });
+  document.getElementById('img-delete').addEventListener('click',  () => { deleteSelectedImage();     resetActivity(); });
+
+  // Emoji Picker
+  document.getElementById('btn-emoji').addEventListener('mousedown', e => { e.preventDefault(); saveCursorPosition(); });
+  document.getElementById('btn-emoji').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('emoji-picker').classList.toggle('hidden');
+    resetActivity();
+  });
+  document.getElementById('emoji-search').addEventListener('input', e => {
+    const q = e.target.value.trim();
+    if (q) filterEmojis(q);
+    else renderEmojiGrid(document.querySelector('.emoji-cat-btn.active')?.dataset.cat || 'smileys');
+  });
+  document.querySelectorAll('.emoji-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.emoji-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('emoji-search').value = '';
+      renderEmojiGrid(btn.dataset.cat);
+    });
+  });
+  document.addEventListener('click', e => {
+    const picker = document.getElementById('emoji-picker');
+    if (!picker.classList.contains('hidden') &&
+        !picker.contains(e.target) &&
+        e.target !== document.getElementById('btn-emoji')) {
+      picker.classList.add('hidden');
+    }
+  });
+
+  // Calendario
+  document.getElementById('cal-prev-month').addEventListener('click', () => {
+    calendarDate.setMonth(calendarDate.getMonth() - 1);
+    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth()); resetActivity();
+  });
+  document.getElementById('cal-next-month').addEventListener('click', () => {
+    calendarDate.setMonth(calendarDate.getMonth() + 1);
+    renderCalendar(calendarDate.getFullYear(), calendarDate.getMonth()); resetActivity();
+  });
+
+  // Portada
+  document.getElementById('save-cover-btn').addEventListener('click', () => { saveCoverData(); resetActivity(); });
+  document.getElementById('cover-photo-input').addEventListener('change', e => {
+    if (e.target.files[0]) { handleCoverPhotoUpload(e.target.files[0]); e.target.value = ''; }
+    resetActivity();
+  });
+
+  // Configuración
+  document.getElementById('change-password-btn').addEventListener('click', () => { handleChangePassword(); resetActivity(); });
+
+  // Panel Notas Rápidas
+  document.getElementById('qnp-close').addEventListener('click', closeQuickNotePanel);
+  document.getElementById('qnp-backdrop').addEventListener('click', closeQuickNotePanel);
+  document.getElementById('qnp-add-btn').addEventListener('click', addQuickNote);
+  document.getElementById('qnp-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addQuickNote();
+  });
+  document.getElementById('qnp-open-diary').addEventListener('click', () => {
+    if (currentQNPDate) {
+      const [y, m, d] = currentQNPDate.split('-').map(Number);
+      currentDate = new Date(y, m - 1, d);
+      updateDateDisplay();
+      loadDiaryEntry(currentQNPDate);
+      showScreen('diary');
+      closeQuickNotePanel();
+    }
+  });
+
+  // Auto-logout
+  document.getElementById('btn-continue-session').addEventListener('click', () => { hideLogoutDialog(); resetActivity(); });
+  document.getElementById('btn-end-session').addEventListener('click', doLogout);
+
+  // Reset general
+  ['mousemove','mousedown','keydown','touchstart','scroll'].forEach(ev => {
+    document.addEventListener(ev, resetActivity, { passive: true });
+  });
+}
+
+console.log('🌸 Mi Agenda Virtual — Cargada con amor 💜');
+</script>
+</body>
+</html>
